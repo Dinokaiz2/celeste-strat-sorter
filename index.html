@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+    <title>Strat Sorter</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <span id="msg-content"></span>
+    <div id="attachments"></div>
+    <button id="prev">Prev</button>
+    <span id="current-message"></span>/<span id="total-messages"></span>
+    <button id="next">Next</button>
+
+    <video width="640" controls>
+        <source src="https://cdn.discordapp.com/attachments/617809769322774533/829834484278362142/4a-idea-r3.mp4">
+    </video>
+    <image width="640" src="https://cdn.discordapp.com/attachments/617809769322774533/641734415327821835/Old_Site_Big_Jump.gif"></image>
+
+    <script>
+        let inputFile = "sorting/1a.json";
+        let msgIdx = 0;
+        let messages;
+
+        
+        function refresh() {
+            $("#msg-content").text(messages[msgIdx].content);
+            $("#attachments").empty();
+            // embed discord attachments
+            messages[msgIdx].attachments.forEach(attachment => { // mp4, mkv, mov
+                $.ajax({
+                    type: "HEAD",
+                    async: true,
+                    url: attachment.url,
+                    dataType: "text",
+                    headers: {"Access-Control-Allow-Origin": "*"}
+                }).done((msg, txt, jqxhr) => {
+                    console.log(jqxhr.getResponseHeader("Content-Type"));
+                    console.log(msg, txt, jqxhr);
+                });
+                $("#attachments").append(`<video width="640" controls><source src=${attachment.url}></video>`)
+            });
+            $("#current-message").text(msgIdx + 1);
+        }
+
+        $.getJSON(inputFile, json => {
+            messages = json;
+            $("#total-messages").text(messages.length);
+            refresh();
+        });
+
+        $("button#prev").click(() => {
+            msgIdx--;
+            refresh();
+        });
+        $("button#next").click(() => {
+            msgIdx++;
+            refresh();
+        });
+    </script>
+</body>
+</html>
