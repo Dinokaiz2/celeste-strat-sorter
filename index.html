@@ -30,7 +30,8 @@
         <option value="no-resource">No resource</option>
         <option value="embed-fail">Failed to embed</option>
         <option value="modded">Modded</option>
-        <option value="category-unclear">Category unclear</option>
+        <option value="other-category">Other category</option>
+        <option value="no-category">No category</option>
         <option value="review">Needs review</option>
     </select>
     
@@ -48,39 +49,70 @@
         };
 
         const CHAPTER_KEYWORDS = {
-            "/prologue-a/prologue-a-1": [],
+            "/prologue-a/prologue-a-1": ["#prologue", "#pro", "#prolog"],
+
             "/city-a": ["#1a", "#city", "#forsakencity", "#forsaken-city", "#forsaken_city", "#forsaken city"],
+            "/site-a": ["#2a", "#site", "#oldsite", "#old-site", "#old_site", "#old site"],
+            "/resort-a": ["#3a", "#resort", "#celestialresort", "#celestial-resort", "#celestial_resort", "#celestial resort"],
+            "/ridge-a": ["#4a", "#ridge", "#goldenridge", "#golden-ridge", "#golden_ridge", "#golden ridge"],
+            "/temple-a": ["#5a", "#temple", "#mirrortemple", "#mirror-temple", "#mirror_temple", "#mirror temple"],
+            "/reflection-a": ["#6a", "#reflection"],
+            "/summit-a": ["#7a", "#summit"],
+            "/core-a": ["#8a", "#core"],
+            "/farewell-a": ["#9", "#ch9", "#chapter9", "#chapter-9", "#chapter_9", "#chapter 9", "#farewell", "#fw", "#farewel"],
+
+            "/city-b": ["#1b"],
+            "/site-b": ["#2b"],
+            "/resort-b": ["#3b"],
+            "/ridge-b": ["#4b"],
+            "/temple-b": ["#5b"],
+            "/reflection-b": ["#6b"],
+            "/summit-b": ["#7b"],
+            "/core-b": ["#8b"],
+
+            "/city-c/city-c-1": ["#1c"],
+            "/site-c/site-c-1": ["#2c"],
+            "/resort-c/resort-c-1": ["#3c"],
+            "/ridge-c/ridge-c-1": ["#4c"],
+            "/temple-c/temple-c-1": ["#5c"],
+            "/reflection-c/reflection-c-1": ["#6c"],
+            "/summit-c/summit-c-1": ["#7c"],
+            "/core-c/core-c-1": ["#8c"],
+
+            "/epilogue-a/epilogue-a-1": ["#epilogue", "#epi", "#epilog"],
+        }
+
+        const CHECKPOINT_KEYWORDS = {
             "/city-a/city-a-1": ["#1a #start", "#start #1a", "#1a start", "#start 1a", "#city #start", "#start #city", "#city start", "#start city"],
             "/city-a/city-a-2": ["#crossing"],
             "/city-a/city-a-3": ["#chasm"],
-            "/site-a": ["#2a", "#site", "#oldsite", "#old-site", "#old_site", "#old site"],
             "/site-a/site-a-1": ["#2a #start", "#start #2a", "#2a start", "#start 2a", "#site #start", "#start #site", "#site start", "#start site"],
             "/site-a/site-a-2": ["#intervention"],
             "/site-a/site-a-3": ["#awake"],
-            "/resort-a": ["#3a", "#resort", "#celestialresort", "#celestial-resort", "#celestial_resort", "#celestial resort"],
+
             "/resort-a/resort-a-1": ["#3a #start", "#start #3a", "#3a start", "#start 3a", "#resort #start", "#start #resort", "#resort start", "#start resort"],
             "/resort-a/resort-a-2": ["#mess", "#hugemess", "#huge-mess", "#huge_mess", "#huge mess"],
             "/resort-a/resort-a-3": ["#shaft", "#elevatorshaft", "#elevator-shaft", "#elevator_shaft", "#elevator shaft"],
             "/resort-a/resort-a-4": ["#suite", "#presidentialsuite", "#presidential-suite", "#presidential_suite", "#presidential suite"],
-            "/ridge-a": ["#4a", "#ridge", "#goldenridge", "#golden-ridge", "#golden_ridge", "#golden ridge"],
+
             "/ridge-a/ridge-a-1": ["#4a #start", "#start #4a", "#4a start", "#start 4a", "#ridge #start", "#start #ridge", "#ridge start", "#start ridge"],
             "/ridge-a/ridge-a-2": ["#shrine"],
             "/ridge-a/ridge-a-3": ["#trail", "#oldtrail", "#old-trail", "#old_trail", "#old trail"],
             "/ridge-a/ridge-a-4": ["#cliff", "#face", "#cliffface", "#cliff-face", "#cliff_face", "#cliff face"],
-            "/temple-a": ["#5a", "#temple", "#mirrortemple", "#mirror-temple", "#mirror_temple", "#mirror temple"],
+
             "/temple-a/temple-a-1": ["#5a #start", "#start #5a", "#5a start", "#start 5a", "#temple #start", "#start #temple", "#temple start", "#start temple"],
             "/temple-a/temple-a-2": ["#depths"],
             "/temple-a/temple-a-3": ["#unravelling"],
             "/temple-a/temple-a-4": ["#search"],
             "/temple-a/temple-a-5": ["#rescue"],
-            "/reflection-a": ["#6a", "#reflection"],
+
             "/reflection-a/reflection-a-1": ["#6a #start", "#start #6a", "#6a start", "#start 6a", "#reflection #start", "#start #reflection", "#reflection start", "#start reflection"],
             "/reflection-a/reflection-a-2": ["#lake"],
             "/reflection-a/reflection-a-3": ["#hollows"],
-            "/reflection-a/reflection-a-4": ["#reflection"],
-            "/reflection-a/reflection-a-5": ["#rock", "#bottom", "#rockbottom", "#rock-bottom", "#rock_bottom", "#rock bottom"],
+            "/reflection-a/reflection-a-4": ["#6a #reflection", "#reflection #6a", "#6a reflection", "#reflection 6a"],
+            "/reflection-a/reflection-a-5": ["#6a #rock bottom", "#rock bottom #6a", "#6a rock bottom", "#rock bottom 6a", "#6a #rockbottom", "#rockbottom #6a", "#6a rockbottom", "#rockbottom 6a"],
             "/reflection-a/reflection-a-6": ["#resolution"],
-            "/summit-a": ["#7a", "#summit"],
+
             "/summit-a/summit-a-1": ["#7a #start", "#start #7a", "#7a start", "#start 7a", "#summit #start", "#start #summit", "#summit start", "#start summit", "#0m", "#0 m "],
             "/summit-a/summit-a-2": ["#500m", "#500 m"],
             "/summit-a/summit-a-3": ["#1000m", "#1000 m"],
@@ -88,12 +120,12 @@
             "/summit-a/summit-a-5": ["#2000m", "#2000 m"],
             "/summit-a/summit-a-6": ["#2500m", "#2500 m"],
             "/summit-a/summit-a-7": ["#3000m", "#3000 m"],
-            "/core-a": ["#8a", "#core"],
+
             "/core-a/core-a-1": ["#8a #start", "#start #8a", "#8a start", "#start 8a", "#core #start", "#start #core", "#core start", "#start core"],
-            "/core-a/core-a-2": ["#intothecore"],
+            "/core-a/core-a-2": ["#8a #intothecore", "#intothecore #8a", "#8a intothecore", "#intothecore 8a"],
             "/core-a/core-a-3": ["#burningorfreezing", "#burning", "#freezing", "#hotandcold"],
             "/core-a/core-a-4": ["#heartbeat"],
-            "/farewell-a": ["#9", "#ch9", "#chapter9", "#chapter-9", "#chapter_9", "#chapter 9", "#farewell", "#fw", "#farewel"],
+
             "/farewell-a/farewell-a-1": ["#9a #start", "#start #9a", "#9a start", "#start 9a", "#farewell #start", "#start #farewell", "#farewell start", "#start farewell"],
             "/farewell-a/farewell-a-2": ["#singular"],
             "/farewell-a/farewell-a-3": ["#power", "#source", "#powersource", "#power-source", "#power_source", "#power source"],
@@ -104,58 +136,45 @@
             "/farewell-a/farewell-a-8": ["#reconciliation"],
             "/farewell-a/farewell-a-9": ["#moonberry", "#moon berry"],
 
-            "/city-b": ["#1b"],
-            "/city-b/city-b-1": ["#start"],
+            "/city-b/city-b-1": ["#1b #start", "#start #1b", "#1b start", "#start 1b"],
             "/city-b/city-b-2": ["#contraption"],
             "/city-b/city-b-3": ["#scrap", "#pit", "#scrappit", "#scrap-pit", "#scrap_pit", "#scrap pit"],
-            "/site-b": ["#2b"],
-            "/site-b/site-b-1": ["#start"],
+            "/site-b/site-b-1": ["#2b #start", "#start #2b", "#2b start", "#start 2b"],
             "/site-b/site-b-2": ["#combination", "#lock", "#combinationlock", "#combination-lock", "#combination_lock", "#combination lock"],
-            "/site-b/site-b-3": ["#dream", "#altar", "#dreamaltar", "#dream-altar", "#dream_altar", "#dream altar"],
-            "/resort-b": ["#3b"],
-            "/resort-b/resort-b-1": ["#start"],
+            "/site-b/site-b-3": ["#altar", "#dreamaltar", "#dream-altar", "#dream_altar", "#dream altar"],
+
+            "/resort-b/resort-b-1": ["#3b #start", "#start #3b", "#3b start", "#start 3b"],
             "/resort-b/resort-b-2": ["#staff", "#quarters", "#staffquarters", "#staff-quarters", "#staff_quarters", "#staff quarters"],
             "/resort-b/resort-b-3": ["#library"],
             "/resort-b/resort-b-4": ["#rooftop"],
-            "/ridge-b": ["#4b"],
-            "/ridge-b/ridge-b-1": ["#start"],
+
+            "/ridge-b/ridge-b-1": ["#4b #start", "#start #4b", "#4b start", "#start 4b"],
             "/ridge-b/ridge-b-2": ["#stepping", "#stones", "#steppingstones", "#stepping-stones", "#stepping_stones", "#stepping stones"],
             "/ridge-b/ridge-b-3": ["#gusty", "#canyon", "#gustycanyon", "#gusty-canyon", "#gusty_canyon", "#gusty canyon"],
-            "/ridge-b/ridge-b-4": ["#eye", "#storm", "#eyestorm", "#eye-storm", "#eye_storm", "#eye storm"],
-            "/temple-b": ["#5b"],
-            "/temple-b/temple-b-1": ["#start"],
+            "/ridge-b/ridge-b-4": ["#eye", "#storm", "#eyeofthestorm", "#eye-of-the-storm", "#eye_of_the_storm", "#eye of the storm"],
+
+            "/temple-b/temple-b-1": ["#5b #start", "#start #5b", "#5b start", "#start 5b"],
             "/temple-b/temple-b-2": ["#central", "#chamber", "#centralchamber", "#central-chamber", "#central_chamber", "#central chamber"],
-            "/temple-b/temple-b-3": ["#through the mirror"],
-            "/temple-b/temple-b-4": ["#mix", "#master", "#mixmaster", "#mix-master", "#mix_master", "#mix master"],
-            "/reflection-b": ["#6b"],
-            "/reflection-b/reflection-b-1": ["#start"],
-            "/reflection-b/reflection-b-2": [],
-            "/reflection-b/reflection-b-3": [],
-            "/reflection-b/reflection-b-4": [],
-            "/summit-b": ["#7b"],
-            "/summit-b/summit-b-1": [],
-            "/summit-b/summit-b-2": [],
-            "/summit-b/summit-b-3": [],
-            "/summit-b/summit-b-4": [],
-            "/summit-b/summit-b-5": [],
-            "/summit-b/summit-b-6": [],
-            "/summit-b/summit-b-7": [],
-            "/core-b": [],
-            "/core-b/core-b-1": [],
-            "/core-b/core-b-2": [],
-            "/core-b/core-b-3": [],
-            "/core-b/core-b-4": [],
+            "/temple-b/temple-b-3": ["#through the mirror", "#ttm", "#mirror"],
+            "/temple-b/temple-b-4": ["#mix", "#master", "#mm", "#mixmaster", "#mix-master", "#mix_master", "#mix master"],
 
-            "/city-c/city-c-1": [],
-            "/site-c/site-c-1": [],
-            "/resort-c/resort-c-1": [],
-            "/ridge-c/ridge-c-1": [],
-            "/temple-c/temple-c-1": [],
-            "/reflection-c/reflection-c-1": [],
-            "/summit-c/summit-c-1": [],
-            "/core-c/core-c-1": [],
+            "/reflection-b/reflection-b-1": ["#6b #start", "#start #6b", "#6b start", "#start 6b"],
+            "/reflection-b/reflection-b-2": ["#6b #reflection", "#reflection #6b", "#6b reflection", "#reflection 6b"],
+            "/reflection-b/reflection-b-3": ["#6b #rock bottom", "#rock bottom #6b", "#6b rock bottom", "#rock bottom 6b", "#6b #rockbottom", "#rockbottom #6b", "#6b rockbottom", "#rockbottom 6b"],
+            "/reflection-b/reflection-b-4": ["#reprieve"],
 
-            "/epilogue-a/epilogue-a-1": [],
+            "/summit-b/summit-b-1": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b0m", "0m7b", "#7b #0m", "#0m #7b", "#7b 0m", "#0m 7b", "#7b-0m", "#7b_0m"],
+            "/summit-b/summit-b-2": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b500m", "500m7b", "#7b #500m", "#500m #7b", "#7b 500m", "#500m 7b", "#7b-500m", "#7b_500m"],
+            "/summit-b/summit-b-3": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b1000m", "1000m7b", "#7b #1000m", "#1000m #7b", "#7b 1000m", "#1000m 7b", "#7b-1000m", "#7b_1000m"],
+            "/summit-b/summit-b-4": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b1500m", "1500m7b", "#7b #1500m", "#1500m #7b", "#7b 1500m", "#1500m 7b", "#7b-1500m", "#7b_1500m"],
+            "/summit-b/summit-b-5": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b2000m", "2000m7b", "#7b #2000m", "#2000m #7b", "#7b 2000m", "#2000m 7b", "#7b-2000m", "#7b_2000m"],
+            "/summit-b/summit-b-6": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b2500m", "2500m7b", "#7b #2500m", "#2500m #7b", "#7b 2500m", "#2500m 7b", "#7b-2500m", "#7b_2500m"],
+            "/summit-b/summit-b-7": ["#7b #start", "#start #7b", "#7b start", "#start 7b", "#7b0m", "0m7b", "#7b #0m", "#0m #7b", "#7b 0m", "#0m 7b", "#7b-0m", "#7b_0m"],
+
+            "/core-b/core-b-1": ["#8b #start", "#start #8b", "#8b start", "#start 8b"],
+            "/core-b/core-b-2": ["#8b #intothecore", "#intothecore #8b", "#8b intothecore", "#intothecore 8b"],
+            "/core-b/core-b-3": ["#burningorfreezing", "#burning", "#freezing"],
+            "/core-b/core-b-4": ["#heartofthemountain", "#heart-of-the-mountain", "#heart_of_the_mountain"],
         };
 
         let inputFile = "full-output.json";
@@ -219,6 +238,25 @@
                         <a href="javascript:void(0)" onclick="onRoomRemove('${room}')">(&times;)</a>
                     </span>`
                 ).appendTo("#rooms");
+            });
+        }
+        
+        function autoNavigateRoomPicker(content) {
+            let checkpoint_found;
+            $.each(Object.entries(CHECKPOINT_KEYWORDS), (_, entry) => {
+                $.each(entry[1], (_, keyword) => {
+                    checkpoint_found = content.toLowerCase().includes(keyword);
+                    if (checkpoint_found) setRoomPickerPath(entry[0]);
+                    return !checkpoint_found;
+                });
+                return !checkpoint_found;
+            });
+            if (!checkpoint_found) $.each(Object.entries(CHAPTER_KEYWORDS), (_, entry) => {
+                $.each(entry[1], (_, keyword) => {
+                    let found = content.toLowerCase().includes(keyword);
+                    if (found) setRoomPickerPath(entry[0]);
+                    return !found;
+                });
             });
         }
 
@@ -303,6 +341,7 @@
             embedLinks(messages[msgIdx].content);
             $("#message-number").val(msgIdx + 1);
             updateRoomDisplay();
+            autoNavigateRoomPicker(messages[msgIdx].content);
             if (!("categories" in messages[msgIdx])) autofillCategories(messages[msgIdx].content);
             else setCategories();
             onProblemsChange();
