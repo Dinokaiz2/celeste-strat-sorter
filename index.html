@@ -4,49 +4,243 @@
     <title>Strat Sorter</title>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 </head>
-<body>
-    <span id="msg-content"></span>
-    <div id="attachments"></div>
+<body style="margin: 10px 100px">
     <button id="prev">Prev</button>
-    <span id="current-message"></span>/<span id="total-messages"></span>
-    <button id="next">Next</button>
+    <input type="number" id="message-number" style="width:60px">/<span id="total-messages"></span>
+    <button id="go">Go</button>
+    <button id="next" style="margin-right:50px">Next</button>
+    <input type="file" id="file"></input>
+    <button id="save">Save</button><br/>
+    <span><a id="message-link"></a></span><br/><br/>
 
-    <video width="640" controls>
-        <source src="https://cdn.discordapp.com/attachments/617809769322774533/829834484278362142/4a-idea-r3.mp4">
-    </video>
-    <image width="640" src="https://cdn.discordapp.com/attachments/617809769322774533/641734415327821835/Old_Site_Big_Jump.gif"></image>
+    <span id="msg-content" width="600"></span><br/>
+    <div id="attachments" style="height: 400px; overflow-x: scroll; white-space: nowrap;"></div>
+
+    <span id="categories">
+        <input type="checkbox" onclick="onCategoryChange()" id="clear" value="clear"><label for="clear">Clear</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="arb" value="arb"><label for="arb">ARB</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="c" value="c"><label for="c">Cassette</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="h" value="h"><label for="h">Heart</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="fc" value="fc"><label for="fc">Full clear</label>
+    </span>
+    
+    <select name="Problems" id="problems" onchange="onProblemsChange()" style="margin-left: 20px">
+        <option selected disabled>Problems</option>
+        <option value="resource-dead">Resource dead</option>
+        <option value="no-resource">No resource</option>
+        <option value="embed-fail">Failed to embed</option>
+        <option value="modded">Modded</option>
+        <option value="category-unclear">Category unclear</option>
+        <option value="review">Needs review</option>
+    </select>
+    
+    <span id="rooms" style="margin-left: 20px"></span>
+
+    <iframe id="room-picker" src="https://celestespeed.run/" width="100%" height="2000"></iframe>
 
     <script>
-        let inputFile = "sorting/1a.json";
+        const CATEGORY_KEYWORDS = {
+            "clear": ["#any", "any%", "#clear", "#bny", "bny%", "#1b", "#2b", "#3b", "#4b", "#5b", "#6b", "#7b", "#8b", "#1c", "#2c", "#3c", "#4c", "#5c", "#6c", "#7c", "#8c", "#b-side", "#c-side", "#chapter9", "#ch9", "#farewell", "#fw"],
+            "arb": ["#arb", "#berry", "#1arb", "#2arb", "#3arb", "#4arb", "#5arb", "#7arb"],
+            "c": ["#cassette", "#casette", "#cassete", "#allchapters", "#allcassettes", "#all chapters", "#all cassettes"],
+            "h": ["#heart", "#allchapters", "#allhearts", "#all chapters", "#all hearts"],
+            "fc": ["#fc, #fullclear", "#100%", "#hundo", "#1afc", "#2afc", "#3afc", "#4afc", "#5afc", "#6afc", "#7afc"],
+        };
+
+        const CHAPTER_KEYWORDS = {
+            "/city-a/": [],
+            "/city-a/city-a-1": [],
+            "/city-a/city-a-2": [],
+            "/city-a/city-a-3": [],
+            "/site-a/": [],
+            "/site-a/site-a-1": [],
+            "/site-a/site-a-2": [],
+            "/site-a/site-a-3": [],
+            "/resort-a/": [],
+            "/resort-a/resort-a-1": [],
+            "/resort-a/resort-a-2": [],
+            "/resort-a/resort-a-3": [],
+            "/resort-a/resort-a-4": [],
+            "/ridge-a/": [],
+            "/ridge-a/ridge-a-1": [],
+            "/ridge-a/ridge-a-2": [],
+            "/ridge-a/ridge-a-3": [],
+            "/ridge-a/ridge-a-4": [],
+        };
+
+        let inputFile = "full-output.json";
         let msgIdx = 0;
         let messages;
+        let ignoreNextRoomChange;
 
+        // room picking
+
+        $(document).ready(() => addEventListener("message", e => onRoomPickerChange(e, true)));
         
-        function refresh() {
-            $("#msg-content").text(messages[msgIdx].content);
-            $("#attachments").empty();
-            // embed discord attachments
-            messages[msgIdx].attachments.forEach(attachment => { // mp4, mkv, mov
-                $.ajax({
-                    type: "HEAD",
-                    async: true,
-                    url: attachment.url,
-                    dataType: "text",
-                    headers: {"Access-Control-Allow-Origin": "*"}
-                }).done((msg, txt, jqxhr) => {
-                    console.log(jqxhr.getResponseHeader("Content-Type"));
-                    console.log(msg, txt, jqxhr);
-                });
-                $("#attachments").append(`<video width="640" controls><source src=${attachment.url}></video>`)
-            });
-            $("#current-message").text(msgIdx + 1);
+        function extractLinks(content) {
+            let links = content.match(/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/g);
+            if (links === null) return [];
+            links.forEach((url, i) => links[i] = new URL(url));
+            return links;
+        }
+        
+        function setRoomPickerPath(path) {
+            $("#room-picker").attr("src", `https://celestespeed.run${path}`);
         }
 
-        $.getJSON(inputFile, json => {
-            messages = json;
-            $("#total-messages").text(messages.length);
-            refresh();
-        });
+        function onRoomPickerChange(event) {
+            if (ignoreNextRoomChange) {
+                ignoreNextRoomChange = false;
+                return;
+            }
+            let url = extractLinks(event.data);
+            if (url.length === 0) return;
+            let path = url[0].pathname.split("/");
+            if (path.length != 4) return;
+            $.ajax({
+                type: "GET",
+                async: true,
+                url: `https://celestespeed.run/api/rooms/${path[path.length - 1]}`,
+                success: (data, stat, jqxhr) => setRoomPickerPath(path.slice(0, 2).join("/") + "/" + jqxhr.responseJSON.checkpoint.token),
+            });
+            if (!("rooms" in messages[msgIdx])) messages[msgIdx].rooms = [];
+            if (!messages[msgIdx].rooms.includes(url[0].pathname)) messages[msgIdx].rooms.push(url[0].pathname);
+            updateRoomDisplay();
+        }
+        
+        function onRoomNavigate(path) {
+            // cancel standard navigation behavior when clicking on room link
+            ignoreNextRoomChange = true;
+            setRoomPickerPath(path);
+        }
+
+        function onRoomRemove(name) {
+            messages[msgIdx].rooms = messages[msgIdx].rooms.filter(room => room != name);
+            updateRoomDisplay();
+        }
+        
+        function updateRoomDisplay() {
+            $("#rooms").empty();
+            if (!("rooms" in messages[msgIdx])) return;
+            messages[msgIdx].rooms.forEach(room => {
+                let element = $(
+                    `<span style="margin-right: 10px">
+                        <a href="javascript:void(0)" onclick="onRoomNavigate('${room}')">${room}</a> 
+                        <a href="javascript:void(0)" onclick="onRoomRemove('${room}')">(&times;)</a>
+                    </span>`
+                ).appendTo("#rooms");
+            });
+        }
+
+        function autofillCategories(content) {
+            $("#categories input").each((i, e) => { e.checked = false; });
+            let categories = [];
+            Object.entries(CATEGORY_KEYWORDS).forEach(entry => {
+                entry[1].forEach(keyword => { if (content.toLowerCase().includes(keyword)) categories.push(entry[0]); });
+            });
+            $("#categories input").each((i, e) => { if (categories.includes(e.value)) e.checked = true; });
+            onCategoryChange();
+        }
+
+        function onCategoryChange() {
+            $("#categories input").each((i, e) => { if (e.checked) e.value; });
+            if (!("categories" in messages[msgIdx])) messages[msgIdx].categories = [];
+            $("#categories input").each((i, e) => {
+                if (e.checked && !messages[msgIdx].categories.includes(e.value)) messages[msgIdx].categories.push(e.value);
+            });
+        }
+
+        function onProblemsChange() {
+            let problem = $("#problems :selected").val();
+            if (!problem) return;
+            if (!("problems" in messages[msgIdx])) messages[msgIdx].problems = [];
+            if (!messages[msgIdx].problems.includes(problem)) messages[msgIdx].problems.push(problem);
+            else messages[msgIdx].problems = messages[msgIdx].problems.filter(e => e !== problem);
+            $("#problems :disabled").prop("selected", true);
+            $("#problems :not(:disabled)").each(function() { if ($(this).text().includes("\u2714")) $(this).text($(this).text().slice(0, -2)); });
+            $("#problems :not(:disabled)").each(function() { if (messages[msgIdx].problems.includes($(this).val())) $(this).text($(this).text() + " \u2714"); });
+        }
+        
+        // attachments, videos, images, gifs, etc
+        
+        function checkMime(url, callback) {
+            $.ajax({
+                type: "HEAD",
+                async: true,
+                url: url,
+                success: (data, stat, jqxhr) => callback(jqxhr.getResponseHeader("Content-Type")),
+                error: (jqxhr, stat, err) => callback(jqxhr.getResponseHeader("Content-Type")),
+            });
+        }
+        
+        function embedAttachment(attachment, mime) {
+            if (mime.startsWith("video") || mime.startsWith("audio")) // some videos have MIME "audio/mp4" but play correctly, so include audio here
+                $("#attachments").append(`<video width="640" controls><source src=${attachment.url}></video>`)
+            else if (mime.startsWith("image"))
+                $("#attachments").append(`<image width="640" src=${attachment.url}></image>`)
+        }
+        
+        function embedLinks(content) {
+            let links = extractLinks(content);
+            links.forEach(url => {
+                if (url.hostname.startsWith("gfycat")) {
+                    $("#attachments").append(
+                        `<iframe src="https://gfycat.com/ifr${url.pathname}"
+                            frameborder="0"
+                            scrolling="no"
+                            width="640" height="400"
+                            allowfullscreen
+                        ></iframe>`
+                    );
+                }
+            });
+        }
+        
+        function refresh() {
+            $("#attachments").empty();
+            $("#msg-content").text(messages[msgIdx].content);
+            $("#message-link").attr("href", `discord://discord.com/channels/403698615446536203/617809769322774533/${messages[msgIdx].id}`);
+            $("#message-link").text("Show in Discord")
+            messages[msgIdx].attachments.forEach(attachment => checkMime(attachment.proxy_url, mime => embedAttachment(attachment, mime)));
+            embedLinks(messages[msgIdx].content);
+            $("#message-number").val(msgIdx + 1);
+            updateRoomDisplay();
+            autofillCategories(messages[msgIdx].content);
+            onProblemsChange();
+        }
+
+        // file manip
+
+        function fileSelect() {
+            var file = document.getElementById("file").files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = evt => {
+                    messages = $.parseJSON(evt.target.result);
+                    $("#total-messages").text(messages.length);
+                    refresh();
+                };
+                reader.onerror = () => alert("Couldn't read file.");
+            }
+        }
+        
+        function download() {
+            // https://stackoverflow.com/a/60377870/12004589
+            let downloader = document.createElement("a");
+            downloader.href = URL.createObjectURL(new Blob([JSON.stringify(messages, null, 2)], {
+              type: "text/plain"
+            }));
+            downloader.setAttribute("download", inputFile); // download with same name original
+            document.body.appendChild(downloader);
+            downloader.click();
+            document.body.removeChild(downloader);
+        }
+        
+        $("input#file").change(fileSelect);
+        $("button#save").click(download);
+
+        // navigation
 
         $("button#prev").click(() => {
             msgIdx--;
@@ -54,6 +248,11 @@
         });
         $("button#next").click(() => {
             msgIdx++;
+            refresh();
+        });
+        $("button#go").click(() => {
+            let newIdx = parseInt($("#message-number").val());
+            if (!isNaN(newIdx)) msgIdx = newIdx - 1;
             refresh();
         });
     </script>
