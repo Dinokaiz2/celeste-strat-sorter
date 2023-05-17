@@ -22,6 +22,9 @@
         <input type="checkbox" onclick="onCategoryChange()" id="c" value="c"><label for="c">Cassette</label>
         <input type="checkbox" onclick="onCategoryChange()" id="h" value="h"><label for="h">Heart</label>
         <input type="checkbox" onclick="onCategoryChange()" id="fc" value="fc"><label for="fc">Full clear</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="dts" value="dts"><label for="dts">DTS</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="dashless" value="dashless"><label for="dashless">Dashless</label>
+        <input type="checkbox" onclick="onCategoryChange()" id="grabless" value="grabless"><label for="grabless">Grabless</label>
     </span>
     
     <select name="Problems" id="problems" onchange="onProblemsChange()" style="margin-left: 20px">
@@ -32,6 +35,7 @@
         <option value="modded">Modded</option>
         <option value="other-category">Other category</option>
         <option value="no-category">No category</option>
+        <option value="no-strat">Not a strat</option>
         <option value="review">Needs review</option>
     </select>
     
@@ -41,11 +45,14 @@
 
     <script>
         const CATEGORY_KEYWORDS = {
-            "clear": ["#any", "any%", "#clear", "#bny", "bny%", "#1b", "#2b", "#3b", "#4b", "#5b", "#6b", "#7b", "#8b", "#1c", "#2c", "#3c", "#4c", "#5c", "#6c", "#7c", "#8c", "#b-side", "#c-side", "#chapter9", "#9", "#ch9", "#farewell", "#fw"],
+            "clear": ["#any", "any%", "#clear", "#bny", "bny%", "#1b", "#2b", "#3b", "#4b", "#5b", "#6b", "#7b", "#8b", "#1c", "#2c", "#3c", "#4c", "#5c", "#6c", "#7c", "#8c", "#b-side", "#c-side", "#nodts"],
             "arb": ["#arb", "#berry", "#1arb", "#2arb", "#3arb", "#4arb", "#5arb", "#7arb"],
             "c": ["#cassette", "#casette", "#cassete", "#allchapters", "#allcassettes", "#all chapters", "#all cassettes"],
             "h": ["#heart ", "#allchapters", "#allhearts", "#all chapters", "#all hearts"], // space after heart differentiates from heartbeat checkpoint
             "fc": ["#fc, #fullclear", "#moon berry", "#moonberry", "#100%", "#hundo", "#1afc", "#2afc", "#3afc", "#4afc", "#5afc", "#6afc", "#7afc"],
+            "dts": ["#dts", "#doubledash"],
+            "dashless": ["#dashless", "#nodash", "#no dash"],
+            "grabless": ["#grabless", "#nograb", "#no grab"],
         };
 
         const CHAPTER_KEYWORDS = {
@@ -91,7 +98,7 @@
             "/site-a/site-a-3": ["#awake"],
 
             "/resort-a/resort-a-1": ["#3a #start", "#start #3a", "#3a start", "#start 3a", "#resort #start", "#start #resort", "#resort start", "#start resort"],
-            "/resort-a/resort-a-2": ["#mess", "#hugemess", "#huge-mess", "#huge_mess", "#huge mess"],
+            "/resort-a/resort-a-2": ["#mess", "#hugemess", "#huge-mess", "#huge_mess", "#huge mess", "#books", "#towels", "#crates"],
             "/resort-a/resort-a-3": ["#shaft", "#elevatorshaft", "#elevator-shaft", "#elevator_shaft", "#elevator shaft"],
             "/resort-a/resort-a-4": ["#suite", "#presidentialsuite", "#presidential-suite", "#presidential_suite", "#presidential suite"],
 
@@ -266,6 +273,7 @@
             Object.entries(CATEGORY_KEYWORDS).forEach(entry => {
                 entry[1].forEach(keyword => { if (content.toLowerCase().includes(keyword)) categories.push(entry[0]); });
             });
+            if (categories.length === 0) categories.push("clear");
             $("#categories input").each((i, e) => { if (categories.includes(e.value)) e.checked = true; });
             onCategoryChange();
         }
