@@ -212,7 +212,8 @@
         // file manip
 
         function fileSelect() {
-            var file = document.getElementById("file").files[0];
+            let file = document.getElementById("file").files[0];
+            inputFile = file.name;
             if (file) {
                 var reader = new FileReader();
                 reader.readAsText(file, "UTF-8");
@@ -231,7 +232,10 @@
             downloader.href = URL.createObjectURL(new Blob([JSON.stringify(messages, null, 2)], {
               type: "text/plain"
             }));
-            downloader.setAttribute("download", inputFile); // download with same name original
+            let downloadName = inputFile.split(".");
+            downloadName[0] += "-edited";
+            downloadName = downloadName.join(".");
+            downloader.setAttribute("download", downloadName); // download with -edited suffix
             document.body.appendChild(downloader);
             downloader.click();
             document.body.removeChild(downloader);
