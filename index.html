@@ -29,14 +29,15 @@
     
     <select name="Problems" id="problems" onchange="onProblemsChange()" style="margin-left: 20px">
         <option selected disabled>Problems</option>
+        <option value="review">Needs review</option>
+        <option value="bad-strat">Bad strat</option>
+        <option value="other-category">Other category</option>
+        <option value="modded">Modded</option>
+        <option value="no-category">No category</option>
+        <option value="no-strat">Not a strat</option>
         <option value="resource-dead">Resource dead</option>
         <option value="no-resource">No resource</option>
         <option value="embed-fail">Failed to embed</option>
-        <option value="modded">Modded</option>
-        <option value="other-category">Other category</option>
-        <option value="no-category">No category</option>
-        <option value="no-strat">Not a strat</option>
-        <option value="review">Needs review</option>
     </select>
     
     <span id="rooms" style="margin-left: 20px"></span>
@@ -290,6 +291,14 @@
                 e.checked = messages[msgIdx].categories.includes(e.value);
             });
         }
+        
+        function showProblems() {
+            if (!("problems" in messages[msgIdx])) messages[msgIdx].problems = [];
+            $("#problems :not(:disabled)").each(function() {
+                if ($(this).text().includes("\u2714")) $(this).text($(this).text().slice(0, -2));
+                if (messages[msgIdx].problems.includes($(this).val())) $(this).text($(this).text() + " \u2714");
+            });
+        }
 
         function onProblemsChange() {
             let problem = $("#problems :selected").attr("value");
@@ -298,10 +307,7 @@
             if (!messages[msgIdx].problems.includes(problem)) messages[msgIdx].problems.push(problem);
             else messages[msgIdx].problems = messages[msgIdx].problems.filter(e => e !== problem);
             $("#problems :disabled").prop("selected", true);
-            $("#problems :not(:disabled)").each(function() {
-                if ($(this).text().includes("\u2714")) $(this).text($(this).text().slice(0, -2));
-                if (messages[msgIdx].problems.includes($(this).val())) $(this).text($(this).text() + " \u2714");
-            });
+            showProblems();
         }
         
         // attachments, videos, images, gifs, etc
@@ -352,7 +358,7 @@
             autoNavigateRoomPicker(messages[msgIdx].content);
             if (!("categories" in messages[msgIdx])) autofillCategories(messages[msgIdx].content);
             else setCategories();
-            onProblemsChange();
+            showProblems();
         }
 
         // file manip
