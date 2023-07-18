@@ -324,9 +324,9 @@
         
         function embedAttachment(attachment, mime) {
             if (mime.startsWith("video") || mime.startsWith("audio")) // some videos have MIME "audio/mp4" but play correctly, so include audio here
-                $("#attachments").append(`<video width="640" controls><source src=${attachment.url}></video>`)
+                $("#attachments").append(`<video width="640" controls><source src=${attachment}></video>`)
             else if (mime.startsWith("image"))
-                $("#attachments").append(`<image width="640" src=${attachment.url}></image>`)
+                $("#attachments").append(`<image width="640" src=${attachment}></image>`)
         }
         
         function embedLinks(content) {
@@ -341,6 +341,18 @@
                             allowfullscreen
                         ></iframe>`
                     );
+                } else if (url.hostname.startsWith("cdn.discordapp")) {
+                    checkMime(url, mime => embedAttachment(url, mime));
+                } else if (url.hostname.startsWith("streamable")) {
+                    embedAttachment(`https://media.celestespeed.run/streamable${url.pathname}.mp4`, "video");
+                } else if (url.hostname.startsWith("www.youtube") || url.hostname.startsWith("youtube")) {
+                    $("#attachments").append(
+                        `<iframe width="640" height="" src="https://www.youtube.com/embed/${url.searchParams.get("v")}" allowfullscreen></iframe>`
+                    );
+                } else if (url.hostname.startsWith("clips.twitch.tv")) {
+                    $("#attachments").append(
+                        `<iframe src="https://clips.twitch.tv/embed?clip=${url.pathname.slice(1)}" frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe>`
+                    );
                 }
             });
         }
@@ -351,7 +363,7 @@
             $("#msg-content").text(messages[msgIdx].content);
             $("#message-link").attr("href", `discord://discord.com/channels/403698615446536203/617809769322774533/${messages[msgIdx].id}`);
             $("#message-link").text("Show in Discord")
-            messages[msgIdx].attachments.forEach(attachment => checkMime(attachment.proxy_url, mime => embedAttachment(attachment, mime)));
+            messages[msgIdx].attachments.forEach(attachment => checkMime(attachment.url, mime => embedAttachment(attachment.url, mime)));
             embedLinks(messages[msgIdx].content);
             $("#message-number").val(msgIdx + 1);
             updateRoomDisplay();
