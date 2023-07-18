@@ -342,12 +342,16 @@
                         ></iframe>`
                     );
                 } else if (url.hostname.startsWith("cdn.discordapp")) {
-                    checkMime(url, mime => embedAttachment(url, mime));
+                    checkMime(`https://media.discordapp.net${url.pathname}`, mime => embedAttachment(url, mime));
                 } else if (url.hostname.startsWith("streamable")) {
                     embedAttachment(`https://media.celestespeed.run/streamable${url.pathname}.mp4`, "video");
                 } else if (url.hostname.startsWith("www.youtube") || url.hostname.startsWith("youtube")) {
                     $("#attachments").append(
-                        `<iframe width="640" height="" src="https://www.youtube.com/embed/${url.searchParams.get("v")}" allowfullscreen></iframe>`
+                        `<iframe width="620" height="378" src="https://www.youtube.com/embed/${url.searchParams.get("v")}" allowfullscreen></iframe>`
+                    );
+                } else if (url.hostname.startsWith("youtu.be")) {
+                    $("#attachments").append(
+                        `<iframe width="620" height="378" src="https://www.youtube.com/embed${url.pathname}" allowfullscreen></iframe>`
                     );
                 } else if (url.hostname.startsWith("clips.twitch.tv")) {
                     $("#attachments").append(
@@ -363,7 +367,7 @@
             $("#msg-content").text(messages[msgIdx].content);
             $("#message-link").attr("href", `discord://discord.com/channels/403698615446536203/617809769322774533/${messages[msgIdx].id}`);
             $("#message-link").text("Show in Discord")
-            messages[msgIdx].attachments.forEach(attachment => checkMime(attachment.url, mime => embedAttachment(attachment.url, mime)));
+            messages[msgIdx].attachments.forEach(attachment => checkMime(attachment.proxy_url, mime => embedAttachment(attachment.url, mime)));
             embedLinks(messages[msgIdx].content);
             $("#message-number").val(msgIdx + 1);
             updateRoomDisplay();
