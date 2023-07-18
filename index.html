@@ -357,6 +357,8 @@
                     $("#attachments").append(
                         `<iframe src="https://clips.twitch.tv/embed?clip=${url.pathname.slice(1)}&parent=dinokaiz2.github.io" frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe>`
                     );
+                } else if (url.hostname.startsWith("i.imgur")) {
+                    embedAttachment(url, "image");
                 }
             });
         }
