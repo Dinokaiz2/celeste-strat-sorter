@@ -333,14 +333,7 @@
             let links = extractLinks(content);
             links.forEach(url => {
                 if (url.hostname.startsWith("gfycat")) {
-                    $("#attachments").append(
-                        `<iframe src="https://gfycat.com/ifr${url.pathname}"
-                            frameborder="0"
-                            scrolling="no"
-                            width="640" height="400"
-                            allowfullscreen
-                        ></iframe>`
-                    );
+                    embedAttachment(`https://media.celestespeed.run/gfycat${url.pathname}.mp4`, "video");
                 } else if (url.hostname.startsWith("cdn.discordapp")) {
                     checkMime(`https://media.discordapp.net${url.pathname}`, mime => embedAttachment(url, mime));
                 } else if (url.hostname.startsWith("streamable")) {
